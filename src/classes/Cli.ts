@@ -279,7 +279,7 @@ class Cli {
 
   // method to find a vehicle to tow
   // TODO: add a parameter to accept a truck object
-  findVehicleToTow(truckObject: Truck): Promise<void> {
+  findVehicleToTow(truckObject: any): Promise<void> {
     return new Promise((resolve, reject) => {
       inquirer
       .prompt([
@@ -306,6 +306,8 @@ class Cli {
         else {
           truckObject.tow(answers.vehicleToTow);
           resolve();
+          return;
+          
         }
       })
       .catch((error) => {
@@ -402,22 +404,32 @@ class Cli {
           // TODO: add statements to perform the tow action only if the selected vehicle is a truck. Call the findVehicleToTow method to 
           // find a vehicle to tow and pass the selected truck as an argument. After calling the findVehicleToTow method, you will need to 
           // return to avoid instantly calling the performActions method again since findVehicleToTow is asynchronous.
-          
-          if (answers.vehicle === Truck){
-            this.findVehicleToTow(answers.vehicle)
-            .then(() => {
-              this.performActions()
-            })
-            .catch(error => {
-              console.error('Error finding vehicle to tow:', error);
-            });
-            return;
-          }
+          for (let i = 0; i < this.vehicles.length; i++) {  
+            if (this.vehicles[i].vin === this.selectedVehicleVin){
+              if (this.vehicles[i] instanceof Truck){
+                let trk: any = this.vehicles[i];
+                this.findVehicleToTow(trk)
+                .then(() => {
+                  this.performActions()
+                })
+                .catch((error: any) => {
+                  console.error('Error finding vehicle to tow:', error);
+                });
+                return;
+              }
+            }
+            }
         } else if (answers.action === 'Wheelie') {
         // TODO: add statements to perform the wheelie action only if the selected vehicle is a motorbike
-          if (answers.vehicle === Motorbike){
-            answers.vehicle.wheelie();
-          }
+          for (let i = 0; i < this.vehicles.length; i++) {
+            if (this.vehicles[i].vin === this.selectedVehicleVin) {
+              if (this.vehicles[i] instanceof Motorbike){
+                let mb: any = this.vehicles[i];
+                mb.wheelie();
+              }
+              else console.log('Only a motorbike can wheelie.')
+            }
+          }    
         }
 
 
